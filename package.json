@@ -1,0 +1,26 @@
+{
+  "name": "@j.u.p.iter/ts-config",
+  "version": "0.0.0-semantically-released",
+  "description": "The custom ts config parser with the caching of the parsed results.",
+  "main": "dist/lib/index.js",
+  "typings": "dist/types",
+  "repository": "git@github.com:j-u-p-iter/ts-config.git",
+  "author": "Leontyev Kirill (j.u.p.iter) <pn79122821224@gmail.com> (http://j-u-p-iter.ru/)",
+  "license": "MIT",
+  "scripts": {
+    "commit": "jupiter-scripts precommit --allowJs",
+    "build": "jupiter-scripts build",
+    "start": "yarn run build --watch",
+    "lint": "jupiter-scripts lint --format codeFrame",
+    "lint:fix": "yarn run lint --fix",
+    "test": "jupiter-scripts test"
+  },
+  "devDependencies": {
+    "@j.u.p.iter/jupiter-scripts": "^1.17.0"
+  },
+  "dependencies": {
+    "@j.u.p.iter/find-path-to-file": "^1.0.1",
+    "@j.u.p.iter/in-files-cache": "^1.0.0",
+    "@j.u.p.iter/system-error-code": "^1.0.0"
+  }
+}
