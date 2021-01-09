@@ -125,7 +125,7 @@ export class TSConfig {
    *
    */
   private readFile(pathToConfig) {
-    return readFileSync(pathToConfig).toString();
+    return readFileSync(pathToConfig, "utf8");
   }
 
   /**
@@ -152,7 +152,7 @@ export class TSConfig {
       );
     }
 
-    return config;
+    return JSON.stringify(config);
   }
 
   constructor(options: { configPath?: string; cacheFolderPath: string }) {
