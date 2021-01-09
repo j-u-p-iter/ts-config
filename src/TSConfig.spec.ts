@@ -1,4 +1,4 @@
-import path from 'path';
+import * as path from 'path';
 import { writeFileSync, remove, pathExists } from 'fs-extra';
 
 import { TSConfig } from '.';
@@ -7,21 +7,19 @@ import { TSConfig } from '.';
 const getValidConfigContent = () => (
   JSON.stringify({
     compilerOptions: {
-      target: 'es5',
+      "target": "ES5",
     }  
   })
 );
 
-//const getInvalidConfigContent = () => (
-  //JSON.stringify({
-    //compilerOptions: {
-      //invalidProperty: 'hello!',
-    //}  
-  //})
-//);
+const getInvalidConfigContent = () => (
+  JSON.stringify({
+    hello: "./src"
+  })
+);
 
 const getCacheFolderPath = () => path.resolve(__dirname, 'cache');
-const getPathToConfig = () => path.resolve(__dirname, '..', 'tsconfig.json');
+const getPathToConfig = () => path.resolve(__dirname, '..', 'tsconfig1.json');
 
 describe('TSConfig', () => {
   beforeEach(() => {
@@ -31,14 +29,14 @@ describe('TSConfig', () => {
 
   it('throws an error if there is no such a config', async () => {
     const tsConfig = new TSConfig({
-      configPath: 'tsconfig.json',
+      configPath: 'tsconfig1.json',
       cacheFolderPath: getCacheFolderPath(),
     });
 
     await expect(tsConfig.parse()).rejects.toThrow(`There is no typescript config by this path: ${getPathToConfig()}`);
   });
 
-  it('reads config by provided config path anc create cache folder by provided path', async () => {
+  it.only('reads config by provided config path anc create cache folder by provided path', async () => {
     writeFileSync(
       getPathToConfig(),
       getValidConfigContent(),
@@ -46,7 +44,7 @@ describe('TSConfig', () => {
     );
 
     const tsConfig = new TSConfig({
-      configPath: 'tsconfig.json',
+      configPath: 'tsconfig1.json',
       cacheFolderPath: getCacheFolderPath(),
     });
 
@@ -57,18 +55,18 @@ describe('TSConfig', () => {
     await expect(pathExists(getCacheFolderPath())).resolves.toBe(true);
   });
 
-  it('reads config by provided config path', async () => {
+  it('throws an error if the config is invalid', async () => {
     writeFileSync(
       getPathToConfig(),
-      getValidConfigContent(),
+      getInvalidConfigContent(),
       'utf8'
     );
 
     const tsConfig = new TSConfig({
-      configPath: 'tsconfig.json',
+      configPath: 'tsconfig1.json',
       cacheFolderPath: getCacheFolderPath(),
     });
 
-    await expect(tsConfig.parse()).resolves.toBe(getValidConfigContent());
+    await expect(tsConfig.parse()).rejects.toThrow('hello');
   });
 });

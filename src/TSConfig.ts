@@ -3,7 +3,8 @@ import { CacheParams, InFilesCache } from "@j.u.p.iter/in-files-cache";
 import { SystemErrorCode } from "@j.u.p.iter/system-error-code";
 import { readFileSync } from "fs";
 import path from "path";
-import { readConfigFile } from "typescript";
+import { sys, readConfigFile, parseJsonConfigFileContent } from "typescript";
+
 
 /**
  * Sometimes we need to register the TypeScript compiler programmatically
@@ -151,6 +152,11 @@ export class TSConfig {
         `An error occured while reading the configuration file: ${resolvedPathToConfig}`
       );
     }
+
+    const { options, errors } = parseJsonConfigFileContent(config, sys, './');
+
+    console.log('options:', options);
+    console.log('errors:', errors);
 
     return JSON.stringify(config);
   }
