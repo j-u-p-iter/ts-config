@@ -1,10 +1,16 @@
+import { TSParseError } from "@j.u.p.iter/custom-error";
 import { findPathToFile } from "@j.u.p.iter/find-path-to-file";
 import { CacheParams, InFilesCache } from "@j.u.p.iter/in-files-cache";
 import { SystemErrorCode } from "@j.u.p.iter/system-error-code";
-import { TSParseError } from "@j.u.p.iter/custom-error";
 import { readFileSync } from "fs";
 import path from "path";
-import { parseJsonConfigFileContent, readConfigFile, sys, formatDiagnostics, Diagnostic } from "typescript";
+import {
+  Diagnostic,
+  formatDiagnostics,
+  parseJsonConfigFileContent,
+  readConfigFile,
+  sys
+} from "typescript";
 
 /**
  * Sometimes we need to register the TypeScript compiler programmatically
@@ -154,7 +160,10 @@ export class TSConfig {
   private async readTSConfig() {
     const resolvedPathToConfig = await this.resolvePathToConfig();
 
-    const { error, config } = readConfigFile(resolvedPathToConfig, this.readFile);
+    const { error, config } = readConfigFile(
+      resolvedPathToConfig,
+      this.readFile
+    );
 
     if (error) {
       throw new Error(
@@ -162,20 +171,24 @@ export class TSConfig {
       );
     }
 
-    const { options, errors } = parseJsonConfigFileContent(config, sys, resolvedPathToConfig);
+    const { options, errors } = parseJsonConfigFileContent(
+      config,
+      sys,
+      resolvedPathToConfig
+    );
 
     if (errors && errors.length) {
-      const formattedErrorMessage = formatDiagnostics(errors, { 
-        getNewLine: () => '\n', 
-        getCurrentDirectory: () => path.dirname(resolvedPathToConfig), 
-        getCanonicalFileName: (fileName: string) => fileName, 
-      })
+      const formattedErrorMessage = formatDiagnostics(errors, {
+        getNewLine: () => "\n",
+        getCurrentDirectory: () => path.dirname(resolvedPathToConfig),
+        getCanonicalFileName: (fileName: string) => fileName
+      });
 
       throw new TSParseError<Diagnostic[]>(
-        formattedErrorMessage, 
-        resolvedPathToConfig, 
-        errors, 
-        { context: '@j.u.p.iter/ts-config' }
+        formattedErrorMessage,
+        resolvedPathToConfig,
+        errors,
+        { context: "@j.u.p.iter/ts-config" }
       );
     }
 
