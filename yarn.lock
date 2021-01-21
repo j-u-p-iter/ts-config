@@ -1180,15 +1180,27 @@
     "@hapi/bourne" "2.x.x"
     "@hapi/hoek" "9.x.x"
 
+"@j.u.p.iter/custom-error@^1.4.1":
+  version "1.4.1"
+  resolved "https://registry.yarnpkg.com/@j.u.p.iter/custom-error/-/custom-error-1.4.1.tgz#d818d4e3ee4cc71ebe01632edc53b6528b345bb4"
+  integrity sha512-JbkZO396/1IzZT5LZAcvSpza3ppnL4e4spPPtsxnW2nYySKkVCFZLJhAy8C7IfPAfOPQMB5fcQU4kkeswmHxDg==
+  dependencies:
+    "@j.u.p.iter/http-status" "^1.2.1"
+
 "@j.u.p.iter/find-path-to-file@^1.0.1":
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/@j.u.p.iter/find-path-to-file/-/find-path-to-file-1.0.1.tgz#55927c78f0ef9c641f6080a51cf21ee673d4a791"
   integrity sha512-PQ7SG0u+91Cu+i6WkltNf4Yo4cgnfI+yvWCzieDEdf/0lNt1hU6hQzI3f+PYW1R8cMYRrUe3IrahASLn/pZMTQ==
 
-"@j.u.p.iter/in-files-cache@^1.3.0":
-  version "1.3.0"
-  resolved "https://registry.yarnpkg.com/@j.u.p.iter/in-files-cache/-/in-files-cache-1.3.0.tgz#b11641249c50a2549034e10880eed74ef992e877"
-  integrity sha512-ysXLbrdA0VvDSTcZJjGVhUJvqbin2ta+nQ+ATD/MP69ry83scVoSybbhULE5A2g4lNOklfh1Qj1plwJWYhLJog==
+"@j.u.p.iter/http-status@^1.2.1":
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/@j.u.p.iter/http-status/-/http-status-1.2.1.tgz#fde5f1ab9a37657ef4fd9837fb14c5c30c3cfc40"
+  integrity sha512-iWFQDObv4fZ2LiCihdiF8SKSZR4nKsAKbBVttPIbuw6pGdWToHzWhB4MOJbv44uUv+v9/z5YLx0l7n/f6P2dzQ==
+
+"@j.u.p.iter/in-files-cache@^1.3.1":
+  version "1.3.1"
+  resolved "https://registry.yarnpkg.com/@j.u.p.iter/in-files-cache/-/in-files-cache-1.3.1.tgz#1bfa739b91da9a1cb889dbac1e043ba6ccfb2d33"
+  integrity sha512-qFDZxVWVUjNUTwdOyLFoIftBmupfMKhyoq8xxLK2X7RDagQnj8p27/lMhmN9LS6wzqQkd965tZ1petshiUPZPw==
   dependencies:
     "@j.u.p.iter/find-path-to-file" "^1.0.1"
     "@j.u.p.iter/jupiter-scripts" "1.16.3"

@@ -1,10 +1,10 @@
 import { findPathToFile } from "@j.u.p.iter/find-path-to-file";
 import { CacheParams, InFilesCache } from "@j.u.p.iter/in-files-cache";
 import { SystemErrorCode } from "@j.u.p.iter/system-error-code";
+import { TSParseError } from "@j.u.p.iter/custom-error";
 import { readFileSync } from "fs";
 import path from "path";
-import { sys, readConfigFile, parseJsonConfigFileContent } from "typescript";
-
+import { parseJsonConfigFileContent, readConfigFile, sys, formatDiagnostics, Diagnostic } from "typescript";
 
 /**
  * Sometimes we need to register the TypeScript compiler programmatically
@@ -138,14 +138,23 @@ export class TSConfig {
    *   Internally this method is pretty big (because of multiple validation steps),
    *   so, it's better to cache it.
    *
+   *   https://stackoverflow.com/questions/53804566/how-to-get-compileroptions-from-tsconfig-json
+   *
+   * To parse typescript config file and to parse it we use TypeScript compiler API:
+   *
+   *   - readConfigFile - to read file data. If there's an error (JSON format error) it returns an error;
+   *   - parseJsonConfigFile - to parse json config. If there're any errors, it returns errors object.
+   *
+   *   Errors object, returned by parseJsonConfigFile in in TypeScript API world is called as Diagnostics.
+   *     Diagnostic is a very tricky object with different properties, somehow described the error.
+   *
+   *   To parse such type of errors (diagnostics) we use again TypeScript compiler api method: "formatDiagnostics".
+   *
    */
-  private async readConfig() {
+  private async readTSConfig() {
     const resolvedPathToConfig = await this.resolvePathToConfig();
 
-    const { error, config } = readConfigFile(
-      resolvedPathToConfig,
-      this.readFile
-    );
+    const { error, config } = readConfigFile(resolvedPathToConfig, this.readFile);
 
     if (error) {
       throw new Error(
@@ -153,12 +162,24 @@ export class TSConfig {
       );
     }
 
-    const { options, errors } = parseJsonConfigFileContent(config, sys, './');
+    const { options, errors } = parseJsonConfigFileContent(config, sys, resolvedPathToConfig);
 
-    console.log('options:', options);
-    console.log('errors:', errors);
+    if (errors && errors.length) {
+      const formattedErrorMessage = formatDiagnostics(errors, { 
+        getNewLine: () => '\n', 
+        getCurrentDirectory: () => path.dirname(resolvedPathToConfig), 
+        getCanonicalFileName: (fileName: string) => fileName, 
+      })
 
-    return JSON.stringify(config);
+      throw new TSParseError<Diagnostic[]>(
+        formattedErrorMessage, 
+        resolvedPathToConfig, 
+        errors, 
+        { context: '@j.u.p.iter/ts-config' }
+      );
+    }
+
+    return JSON.stringify(options);
   }
 
   constructor(options: { configPath?: string; cacheFolderPath: string }) {
@@ -179,10 +200,10 @@ export class TSConfig {
       return configFromCache;
     }
 
-    const config = await this.readConfig();
+    const config = await this.readTSConfig();
 
     await this.cache.set(await this.getCacheParams(), config);
 
-    return config;
+    return JSON.parse(config);
   }
 }
