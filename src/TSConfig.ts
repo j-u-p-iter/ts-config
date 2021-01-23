@@ -32,6 +32,8 @@ import {
  *
  */
 export class TSConfig {
+  private appRootPath = null;
+
   private configPath = null;
 
   private cacheFolderPath = null;
@@ -90,9 +92,15 @@ export class TSConfig {
    *
    */
   private async getAppRootFolderPath() {
+    if (this.appRootPath) {
+      return this.appRootPath;
+    }
+
     const { dirPath } = await findPathToFile("package.json");
 
-    return dirPath;
+    this.appRootPath = dirPath;
+
+    return this.appRootPath;
   }
 
   /**
