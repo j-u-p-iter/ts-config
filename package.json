@@ -1,6 +1,6 @@
 {
   "name": "@j.u.p.iter/ts-config",
-  "version": "0.0.1",
+  "version": "0.0.0-semantically-released",
   "description": "The custom ts config parser with the caching of the parsed results.",
   "main": "dist/lib/index.js",
   "typings": "dist/types",
