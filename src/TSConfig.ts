@@ -1,4 +1,8 @@
-import { TSParseError } from "@j.u.p.iter/custom-error";
+import {
+  InvalidJsonError,
+  InvalidPathError,
+  TSParseError
+} from "@j.u.p.iter/custom-error";
 import { findPathToFile } from "@j.u.p.iter/find-path-to-file";
 import { CacheParams, InFilesCache } from "@j.u.p.iter/in-files-cache";
 import { SystemErrorCode } from "@j.u.p.iter/system-error-code";
@@ -49,9 +53,9 @@ export class TSConfig {
       return fileContent;
     } catch (error) {
       if (error.code === SystemErrorCode.NO_FILE_OR_DIRECTORY) {
-        throw new Error(
-          `There is no typescript config by this path: ${pathToConfig}`
-        );
+        throw new InvalidPathError(pathToConfig, {
+          context: "@j.u.p.iter/ts-config"
+        });
       }
 
       throw error;
@@ -166,9 +170,9 @@ export class TSConfig {
     );
 
     if (error) {
-      throw new Error(
-        `An error occured while reading the configuration file: ${resolvedPathToConfig}`
-      );
+      throw new InvalidJsonError(resolvedPathToConfig, {
+        context: "@j.u.p.iter/ts-config"
+      });
     }
 
     const { options, errors } = parseJsonConfigFileContent(
