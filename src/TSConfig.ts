@@ -12,7 +12,6 @@ import {
   Diagnostic,
   formatDiagnostics,
   parseJsonConfigFileContent,
-  readConfigFile,
   sys
 } from "typescript";
 
@@ -29,7 +28,6 @@ import {
  * This class serves exactly for this purpose.
  *
  * What it does is:
- *   - reads the TypeScript config, using the TS API (readConfigFile method).
  *   - caches TS config until it's content or location are changed.
  *
  */
@@ -48,7 +46,15 @@ export class TSConfig {
     const pathToConfig = await this.resolvePathToConfig();
 
     try {
-      const fileContent = this.readFile(pathToConfig);
+      const fileContent = readFileSync(pathToConfig, "utf8");
+
+      try {
+        JSON.parse(fileContent);
+      } catch (error) {
+        throw new InvalidJsonError(pathToConfig, {
+          context: "@j.u.p.iter/ts-config"
+        });
+      }
 
       return fileContent;
     } catch (error) {
@@ -104,9 +110,8 @@ export class TSConfig {
    * Calculate cache params, that are used to get/set the cache.
    *
    */
-  private async getCacheParams(): Promise<CacheParams> {
+  private async getCacheParams(configRawContent: string): Promise<CacheParams> {
     const appRootFolderPath = await this.getAppRootFolderPath();
-    const configRawContent = await this.getConfigRawContent();
     const resolvedPathToConfig = await this.resolvePathToConfig();
 
     return {
@@ -130,16 +135,6 @@ export class TSConfig {
   }
 
   /**
-   * We need to converth the output into the String,
-   *   becuase readConfigFile expects the method, that returns the String.
-   *   Otherwise the TS compiltion error will be emitted.
-   *
-   */
-  private readFile(pathToConfig) {
-    return readFileSync(pathToConfig, "utf8");
-  }
-
-  /**
    * We read the config file, using TS API (readConfigFile).
    *   It validates the config and:
    *   - if it's valid - returns parsed config;
@@ -152,7 +147,6 @@ export class TSConfig {
    *
    * To parse typescript config file and to parse it we use TypeScript compiler API:
    *
-   *   - readConfigFile - to read file data. If there's an error (JSON format error) it returns an error;
    *   - parseJsonConfigFile - to parse json config. If there're any errors, it returns errors object.
    *
    *   Errors object, returned by parseJsonConfigFile in in TypeScript API world is called as Diagnostics.
@@ -161,22 +155,11 @@ export class TSConfig {
    *   To parse such type of errors (diagnostics) we use again TypeScript compiler api method: "formatDiagnostics".
    *
    */
-  private async readTSConfig() {
+  private async parseTSConfig(configRawContent: string) {
     const resolvedPathToConfig = await this.resolvePathToConfig();
 
-    const { error, config } = readConfigFile(
-      resolvedPathToConfig,
-      this.readFile
-    );
-
-    if (error) {
-      throw new InvalidJsonError(resolvedPathToConfig, {
-        context: "@j.u.p.iter/ts-config"
-      });
-    }
-
     const { options, errors } = parseJsonConfigFileContent(
-      config,
+      JSON.parse(configRawContent),
       sys,
       resolvedPathToConfig
     );
@@ -211,15 +194,19 @@ export class TSConfig {
   public async parse() {
     await this.initCache();
 
-    const configFromCache = await this.cache.get(await this.getCacheParams());
+    const configRawContent = await this.getConfigRawContent();
+
+    const configFromCache = await this.cache.get(
+      await this.getCacheParams(configRawContent)
+    );
 
     if (configFromCache) {
       return configFromCache;
     }
 
-    const config = await this.readTSConfig();
+    const config = await this.parseTSConfig(configRawContent);
 
-    await this.cache.set(await this.getCacheParams(), config);
+    await this.cache.set(await this.getCacheParams(configRawContent), config);
 
     return JSON.parse(config);
   }
