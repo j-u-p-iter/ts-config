@@ -8,12 +8,7 @@ import { CacheParams, InFilesCache } from "@j.u.p.iter/in-files-cache";
 import { SystemErrorCode } from "@j.u.p.iter/system-error-code";
 import { readFileSync } from "fs";
 import path from "path";
-import {
-  Diagnostic,
-  formatDiagnostics,
-  parseJsonConfigFileContent,
-  sys
-} from "typescript";
+import typescript from "typescript";
 
 /**
  * Sometimes we need to register the TypeScript compiler programmatically
@@ -37,6 +32,8 @@ export class TSConfig {
   private configPath = null;
 
   private cacheFolderPath = null;
+
+  private ts: typeof typescript | null = null;
 
   /**
    * We read the config's raw content to use the content in the InFilesCache.
@@ -166,20 +163,20 @@ export class TSConfig {
   private async parseTSConfig(configRawContent: string) {
     const resolvedPathToConfig = await this.resolvePathToConfig();
 
-    const { options, errors } = parseJsonConfigFileContent(
+    const { options, errors } = this.ts.parseJsonConfigFileContent(
       JSON.parse(configRawContent),
-      sys,
+      this.ts.sys,
       resolvedPathToConfig
     );
 
     if (errors && errors.length) {
-      const formattedErrorMessage = formatDiagnostics(errors, {
+      const formattedErrorMessage = this.ts.formatDiagnostics(errors, {
         getNewLine: () => "\n",
         getCurrentDirectory: () => path.dirname(resolvedPathToConfig),
         getCanonicalFileName: (fileName: string) => fileName
       });
 
-      throw new TSParseError<Diagnostic[]>(
+      throw new TSParseError<typescript.Diagnostic[]>(
         formattedErrorMessage,
         resolvedPathToConfig,
         errors,
@@ -190,8 +187,24 @@ export class TSConfig {
     return JSON.stringify(options);
   }
 
-  constructor(options: { configPath?: string; cacheFolderPath: string }) {
+  /**
+   *  Options description:
+   *
+   *  - ts - typescript instance. We pass typescript instance using Dependency Injection pattern
+   *    no to be bound on concrete version of TS;
+   *
+   *  - configPath - path to the typescript config;
+   *
+   *  - cacheFolderPath - path to the cache folder. We store a parsed version of the config in the cache.
+   *
+   */
+  constructor(options: {
+    ts: typeof typescript;
+    configPath?: string;
+    cacheFolderPath: string;
+  }) {
     this.configPath = options.configPath || this.defaultPathToConfig;
+    this.ts = options.ts;
     this.cacheFolderPath = options.cacheFolderPath;
   }
 

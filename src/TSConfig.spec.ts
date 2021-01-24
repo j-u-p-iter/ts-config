@@ -1,3 +1,4 @@
+import typescript from 'typescript';
 import * as path from 'path';
 import { outputFileSync, removeSync, pathExists, readFile } from 'fs-extra';
 
@@ -58,6 +59,7 @@ describe('TSConfig', () => {
   it('throws an error if there is no such a config', async () => {
     const tsConfig = new TSConfig({
       cacheFolderPath,
+      ts: typescript,
       configPath: CONFIG_NAME,
     });
 
@@ -75,6 +77,7 @@ describe('TSConfig', () => {
 
     const tsConfig = new TSConfig({
       cacheFolderPath,
+      ts: typescript,
       configPath: CONFIG_NAME,
     });
 
@@ -99,6 +102,7 @@ describe('TSConfig', () => {
 
     const tsConfig = new TSConfig({
       cacheFolderPath,
+      ts: typescript,
       configPath: CONFIG_NAME,
     });
 
@@ -114,6 +118,7 @@ describe('TSConfig', () => {
 
     const tsConfig = new TSConfig({
       cacheFolderPath,
+      ts: typescript,
       configPath: CONFIG_NAME,
     });
 
@@ -142,6 +147,7 @@ describe('TSConfig', () => {
 
     const tsConfig = new TSConfig({
       cacheFolderPath,
+      ts: typescript,
       configPath: CONFIG_NAME,
     });
 
