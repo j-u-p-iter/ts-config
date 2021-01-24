@@ -200,8 +200,8 @@ export class TSConfig {
    */
   constructor(options: {
     ts: typeof typescript;
-    configPath?: string;
     cacheFolderPath: string;
+    configPath?: string;
   }) {
     this.configPath = options.configPath || this.defaultPathToConfig;
     this.ts = options.ts;
@@ -217,9 +217,9 @@ export class TSConfig {
 
     const configRawContent = await this.getConfigRawContent();
 
-    const configFromCache = await this.cache.get(
-      await this.getCacheParams(configRawContent)
-    );
+    const cacheParams = await this.getCacheParams(configRawContent);
+
+    const configFromCache = await this.cache.get(cacheParams);
 
     if (configFromCache) {
       return configFromCache;
@@ -227,7 +227,7 @@ export class TSConfig {
 
     const config = await this.parseTSConfig(configRawContent);
 
-    await this.cache.set(await this.getCacheParams(configRawContent), config);
+    await this.cache.set(cacheParams, config);
 
     return JSON.parse(config);
   }

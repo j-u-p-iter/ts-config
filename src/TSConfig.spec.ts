@@ -90,6 +90,7 @@ describe('TSConfig', () => {
     await expect(pathExists(cacheFolderPath)).resolves.toBe(true);
 
     const cachedFileContent = await readFile(generatePathToCachedFile(getValidConfigContent()), 'utf8');
+
     expect(parsedConfig).toEqual(JSON.parse(cachedFileContent));
   });
 
